@@ -47,6 +47,22 @@ async function run(){
             }
         });
 
+
+        app.get('/posts', async(req,res)=>{
+            try {
+                const result = await postCollection.find({}).sort({like: 1}).limit(3).toArray();
+                res.send({
+                    success: true,
+                    data: result
+                })
+            } catch (error) {
+                res.send({
+                    success: false,
+                    message: error.message
+                });
+            }
+        });
+
     } catch (error) {
         console.log(error.name, error.message)
     }
