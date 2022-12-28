@@ -63,6 +63,22 @@ async function run(){
             }
         });
 
+
+        app.get('/allposts', async(req,res)=>{
+            try {
+                const result = await postCollection.find({}).toArray();
+                res.send({
+                    success: true,
+                    data: result
+                })
+            } catch (error) {
+                res.send({
+                    success: false,
+                    message: error.message
+                });
+            }
+        });
+
     } catch (error) {
         console.log(error.name, error.message)
     }
