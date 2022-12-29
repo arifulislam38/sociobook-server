@@ -29,6 +29,70 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run(){
     try {
         const postCollection = client.db('socioBook').collection('post');
+        const userCollection = client.db('socioBook').collection('users');
+
+
+        app.post('/createuser', async(req, res)=>{
+            try {
+                const data = req.body;
+                const result = await userCollection.insertOne(data);
+                res.send({
+                    success: true,
+                    data: result
+                })
+            } catch (error) {
+                res.send({
+                    success: false,
+                    message: error.message
+                })
+            }
+        });
+
+
+        app.get('/user', async(req, res)=>{
+            try {
+                const email = req.query.email;
+                const query = {email};
+                const result = await userCollection.findOne(query);
+                res.send({
+                    success: true,
+                    data: result
+                })
+            } catch (error) {
+                res.send({
+                    success: false,
+                    message: error.message
+                })
+            }
+        });
+
+
+        app.patch('/user', async(req,res)=>{
+            try {
+                const email = req.query.email;
+                const data = req.body;
+                const filter = {email};
+                const options = { upsert: true };
+                const updateDoc = {
+                    $set:{
+                        name: data.name,
+                        address: data.address,
+                        university: data.university
+                    }
+                }
+                const result = await userCollection.updateOne(filter,updateDoc,options);
+                res.send({
+                    success: true,
+                    data: result
+                })
+
+            } catch (error) {
+                res.send({
+                    success: false,
+                    message: error.message
+                })
+            }
+        });
 
 
         app.post('/createpost', async(req,res)=>{
