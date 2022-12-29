@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId, CURSOR_FLAGS } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const port = process.env.PORT || 5000;
@@ -114,7 +114,7 @@ async function run(){
 
         app.get('/posts', async(req,res)=>{
             try {
-                const result = await postCollection.find({}).sort({like: 1}).limit(3).toArray();
+                const result = await postCollection.find({}).sort({likes: -1}).limit(3).toArray();
                 res.send({
                     success: true,
                     data: result
