@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, CURSOR_FLAGS } = require('mongodb');
 require('dotenv').config();
 
 const port = process.env.PORT || 5000;
@@ -76,6 +76,98 @@ async function run(){
                     success: false,
                     message: error.message
                 });
+            }
+        });
+
+
+        app.get('/post/:id', async(req,res)=>{
+            try {
+                const id = req.params.id;
+                const result = await postCollection.findOne({_id: ObjectId(id)});
+                res.send({
+                    success: true,
+                    data: result
+                })
+            } catch (error) {
+                res.send({
+                    success: false,
+                    message: error.message
+                })
+            }
+        });
+
+
+        app.post('/like', async(req, res)=>{
+            try {
+                const email = req.query.email;
+            const id = req.query.id;
+            const query = {_id: ObjectId(id)};
+            const result = await postCollection.findOne(query);
+            const like = result.likes.indexOf(email);
+            console.log(like)
+            if(like < 0){
+                result.likes.push(email);
+                const filter = { _id: ObjectId(id) };
+                const options = { upsert: true };
+                const updateDoc = {
+                    $set: {
+                        likes: result.likes
+                    }
+                };
+                const data = await postCollection.updateOne(filter, updateDoc, options);
+                console.log( result.likes);
+                res.send({
+                    data: 'liked'
+                });
+                return;
+            };
+
+            
+            result.likes.pop(email);
+            const filter = { _id: ObjectId(id) };
+                const options = { upsert: true };
+                const updateDoc = {
+                    $set: {
+                        likes: result.likes
+                    }
+                };
+                const data = await postCollection.updateOne(filter, updateDoc, options);
+            res.send({
+                data: 'like'
+            });
+
+            } catch (error) {
+                res.send({
+                    success: false,
+                    message: error.message
+                });
+            }           
+        });
+
+
+        app.patch('/comment', async(req, res)=>{
+            try {
+                const id = req.query.id;
+                const data = req.body;
+                const filter = {_id: ObjectId(id)};
+                const fdata = await postCollection.findOne(filter);
+                fdata.comments.push(data);
+                const options = { upsert: true };
+                const updateDoc = {
+                $set:{
+                    comments: fdata.comments
+                }
+                };
+                const result = await postCollection.updateOne(filter, updateDoc, options);
+                res.send({
+                    success: true,
+                    data: result
+                })
+            } catch (error) {
+                res.send({
+                    success: false,
+                    message: error.message
+                })
             }
         });
 
