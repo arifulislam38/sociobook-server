@@ -114,7 +114,7 @@ async function run(){
 
         app.get('/posts', async(req,res)=>{
             try {
-                const result = await postCollection.find({}).sort({likes: -1}).limit(3).toArray();
+                const result = await postCollection.find({}).sort({'likes': 1}).limit(3).toArray();
                 res.send({
                     success: true,
                     data: result
